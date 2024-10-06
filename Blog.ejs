@@ -134,18 +134,19 @@
             <button class="close" id="closePopup">X</button>
             <h2>Submit Your Blog</h2>
 
-            <form id="blogForm">
-                <label for="title">Blog Title:</label>
-                <input type="text" id="title" name="title" required>
+<form id="blogForm" action="/submit-blog" method="POST" enctype="multipart/form-data">
+    <label for="title">Blog Title:</label>
+    <input type="text" id="title" name="title" required>
 
-                <label for="content">Blog Content:</label>
-                <textarea id="content" name="content" required></textarea>
+    <label for="content">Blog Content:</label>
+    <textarea id="content" name="content" required></textarea>
 
-                <label for="images">Upload Images:</label>
-                <input type="file" id="images" name="images" accept="image/*" multiple>
+    <label for="images">Upload Images:</label>
+    <input type="file" id="images" name="images" accept="image/*" multiple>
 
-                <button type="submit">Publish Blog</button>
-            </form>
+    <button type="submit">Publish Blog</button>
+</form>
+
         </div>
 
         <div class="blog-posts" id="blogPosts">
