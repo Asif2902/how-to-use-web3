@@ -4,122 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Community Blog Platform</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        label {
-            font-weight: bold;
-        }
-
-        input[type="text"], input[type="file"], textarea {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            width: 100%;
-        }
-
-        textarea {
-            height: 200px;
-        }
-
-        button {
-            padding: 10px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #218838;
-        }
-
-        .blog-posts {
-            margin-top: 30px;
-        }
-
-        .blog-post {
-            background-color: #fafafa;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-
-        .blog-post img {
-            max-width: 100%;
-            border-radius: 5px;
-        }
-
-        .blog-post h2 {
-            margin-top: 0;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        /* Popup styling */
-        .popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90%;
-            max-width: 600px;
-            background-color: #fff;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            z-index: 10;
-            display: none;
-        }
-
-        .popup .close {
-            background-color: red;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            float: right;
-            cursor: pointer;
-        }
-
-        .popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: none;
-            z-index: 5;
-        }
-    </style>
+  <style> body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; } .container { max-width: 800px; margin: 0 auto; background-color: white; padding: 20px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); margin-top: 20px; } h1 { text-align: center; color: #333; } form { display: flex; flex-direction: column; gap: 10px; } label { font-weight: bold; } input[type="text"], input[type="file"], textarea { padding: 10px; border: 1px solid #ddd; border-radius: 5px; width: 100%; } textarea { height: 200px; } button { padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; } button:hover { background-color: #218838; } .blog-posts { margin-top: 30px; } .blog-post { background-color: #fafafa; padding: 15px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 20px; } .blog-post img { max-width: 100%; border-radius: 5px; } .blog-post h2 { margin-top: 0; } .hidden { display: none; } /* Popup styling */ .popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 600px; background-color: #fff; padding: 20px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); z-index: 10; display: none; } .popup .close { background-color: red; color: white; border: none; padding: 5px 10px; float: right; cursor: pointer; } .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: none; z-index: 5; } </style>
 </head>
 <body>
 
@@ -134,23 +19,34 @@
             <button class="close" id="closePopup">X</button>
             <h2>Submit Your Blog</h2>
 
-<form id="blogForm" action="/submit-blog" method="POST" enctype="multipart/form-data">
-    <label for="title">Blog Title:</label>
-    <input type="text" id="title" name="title" required>
+            <form id="blogForm" action="/submit-blog" method="POST" enctype="multipart/form-data">
+                <label for="title">Blog Title:</label>
+                <input type="text" id="title" name="title" required>
 
-    <label for="content">Blog Content:</label>
-    <textarea id="content" name="content" required></textarea>
+                <label for="content">Blog Content:</label>
+                <textarea id="content" name="content" required></textarea>
 
-    <label for="images">Upload Images:</label>
-    <input type="file" id="images" name="images" accept="image/*" multiple>
+                <label for="images">Upload Images:</label>
+                <input type="file" id="images" name="images" accept="image/*" multiple>
 
-    <button type="submit">Publish Blog</button>
-</form>
+                <button type="submit">Publish Blog</button>
+            </form>
 
         </div>
 
         <div class="blog-posts" id="blogPosts">
             <h2>Published Blogs</h2>
+
+            <!-- Dynamically render the blog posts fetched from the server -->
+            <% blogs.forEach(function(blogPost) { %>
+                <div class="blog-post">
+                    <h2><%= blogPost.title %></h2>
+                    <p><%= blogPost.content %></p>
+                    <% blogPost.images.forEach(function(image) { %>
+                        <img src="/uploads/<%= image %>" alt="Blog Image">
+                    <% }); %>
+                </div>
+            <% }) %>
         </div>
     </div>
 
@@ -159,8 +55,6 @@
         const popupForm = document.getElementById('popupForm');
         const popupOverlay = document.getElementById('popupOverlay');
         const closePopupButton = document.getElementById('closePopup');
-        const blogForm = document.getElementById('blogForm');
-        const blogPostsDiv = document.getElementById('blogPosts');
 
         // Open the popup
         submitBlogButton.addEventListener('click', function() {
@@ -173,85 +67,6 @@
             popupForm.style.display = 'none';
             popupOverlay.style.display = 'none';
         });
-
-        // Save the blog post to localStorage
-        blogForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const title = document.getElementById('title').value;
-            const content = document.getElementById('content').value;
-            const images = document.getElementById('images').files;
-
-            const blogPost = {
-                title: title,
-                content: content,
-                images: []
-            };
-
-            const readerPromises = [];
-
-            // Convert images to base64
-            for (let i = 0; i < images.length; i++) {
-                const imageFile = images[i];
-                const reader = new FileReader();
-
-                const promise = new Promise((resolve) => {
-                    reader.onload = function(event) {
-                        blogPost.images.push(event.target.result);
-                        resolve();
-                    };
-                    reader.readAsDataURL(imageFile);
-                });
-
-                readerPromises.push(promise);
-            }
-
-            Promise.all(readerPromises).then(() => {
-                // Get existing blogs from localStorage
-                let blogs = JSON.parse(localStorage.getItem('blogs')) || [];
-                blogs.push(blogPost);
-
-                // Save updated blogs to localStorage
-                localStorage.setItem('blogs', JSON.stringify(blogs));
-
-                // Add blog post to the page
-                displayBlogs();
-
-                // Reset form
-                blogForm.reset();
-
-                // Close the popup
-                popupForm.style.display = 'none';
-                popupOverlay.style.display = 'none';
-            });
-        });
-
-        // Display blogs from localStorage
-        function displayBlogs() {
-            blogPostsDiv.innerHTML = '<h2>Published Blogs</h2>';
-            const blogs = JSON.parse(localStorage.getItem('blogs')) || [];
-
-            blogs.forEach(blogPost => {
-                const blogPostDiv = document.createElement('div');
-                blogPostDiv.classList.add('blog-post');
-
-                let imagesHtml = '';
-                blogPost.images.forEach(image => {
-                    imagesHtml += `<img src="${image}" alt="Blog Image">`;
-                });
-
-                blogPostDiv.innerHTML = `
-                    <h2>${blogPost.title}</h2>
-                    <p>${blogPost.content}</p>
-                    ${imagesHtml}
-                `;
-
-                blogPostsDiv.appendChild(blogPostDiv);
-            });
-        }
-
-        // Load blogs on page load
-        window.onload = displayBlogs;
     </script>
 </body>
 </html>
