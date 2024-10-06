@@ -67,6 +67,48 @@
             popupForm.style.display = 'none';
             popupOverlay.style.display = 'none';
         });
+        blogForm.addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const title = document.getElementById('title').value;
+    const content = document.getElementById('content').value;
+    const images = document.getElementById('images').files;
+
+    const blogPost = {
+        title: title,
+        content: content,
+        images: []
+    };
+
+    const readerPromises = [];
+
+    for (let i = 0; i < images.length; i++) {
+        const imageFile = images[i];
+        const reader = new FileReader();
+
+        const promise = new Promise((resolve) => {
+            reader.onload = function(event) {
+                blogPost.images.push(event.target.result);
+                resolve();
+            };
+            reader.readAsDataURL(imageFile);
+        });
+
+        readerPromises.push(promise);
+    }
+
+    Promise.all(readerPromises).then(() => {
+        let blogs = JSON.parse(localStorage.getItem('blogs')) || [];
+        blogs.push(blogPost);
+        localStorage.setItem('blogs', JSON.stringify(blogs));
+
+        displayBlogs();
+        blogForm.reset();
+        popupForm.style.display = 'none';
+        popupOverlay.style.display = 'none';
+    });
+});
+
     </script>
 </body>
 </html>
