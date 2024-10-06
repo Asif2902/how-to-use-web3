@@ -38,9 +38,9 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Route for homepage (index.html)
+
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html')); // Serve index.html from public
 });
 
 // Route to render Blog.ejs with blogs
