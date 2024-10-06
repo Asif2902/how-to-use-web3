@@ -1,55 +1,63 @@
 const express = require('express');
-const multer = require('multer');
-const fs = require('fs');
 const path = require('path');
+const bodyParser = require('body-parser');
+const multer = require('multer'); // for handling image uploads
+const fs = require('fs'); // for file system operations
+
 const app = express();
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// In-memory blog storage (for simplicity)
+let blogs = [];
+
+// Set EJS as the templating engine
 app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views')); // Set views directory to /views
 
-// Set up multer for file uploads
-const upload = multer({ dest: 'upload/' });
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Route to render the blog submission form
-app.get('/', (req, res) => {
-    res.render('index'); // Ensure your EJS file is in the views folder
-});
+// Middleware to parse form data
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
-// Route to handle blog submission
-app.post('/submit-blog', upload.array('images', 10), (req, res) => {
-    const { title, content } = req.body;
-    const images = req.files.map(file => `/upload/${file.filename}`);
-
-    const newBlog = { title, content, images };
-
-    // Load existing blogs from blogs.json
-    fs.readFile('blogs.json', 'utf8', (err, data) => {
-        if (err) {
-            if (err.code === 'ENOENT') {
-                // File does not exist, create a new array
-                const blogs = [newBlog];
-                fs.writeFileSync('blogs.json', JSON.stringify(blogs, null, 2));
-            } else {
-                return res.status(500).send('Error reading blog data.');
-            }
-        } else {
-            const blogs = JSON.parse(data);
-            blogs.push(newBlog);
-
-            // Write updated blogs to blogs.json
-            fs.writeFileSync('blogs.json', JSON.stringify(blogs, null, 2));
+// Setup multer for handling image uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadDir = path.join(__dirname, 'public/uploads');
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
         }
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname)); // Use timestamp + original extension
+    }
+});
+const upload = multer({ storage });
 
-        res.redirect('/');
-    });
+// Route for homepage (index.html)
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html')); // Serve index.html from public
 });
 
-// Route to serve uploaded images
-app.use('/upload', express.static(path.join(__dirname, 'upload')));
+// Route to render Blog.ejs with blogs
+app.get('/blog', (req, res) => {
+    res.render('Blog', { blogs }); // Pass blogs to the template
+});
+
+// API to submit a blog post
+app.post('/submit-blog', upload.array('images'), (req, res) => {
+    const { title, content } = req.body;
+    const images = req.files.map(file => `/uploads/${file.filename}`); // Store image paths
+
+    const blogPost = { title, content, images };
+    blogs.push(blogPost);
+
+    res.redirect('/blog'); // Redirect to blog page after submission
+});
 
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
