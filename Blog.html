@@ -80,6 +80,45 @@
         .blog-post h2 {
             margin-top: 0;
         }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Popup styling */
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 600px;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+            display: none;
+        }
+
+        .popup .close {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            float: right;
+            cursor: pointer;
+        }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 5;
+        }
     </style>
 </head>
 <body>
@@ -87,18 +126,27 @@
     <div class="container">
         <h1>Community Blog</h1>
 
-        <form id="blogForm">
-            <label for="title">Blog Title:</label>
-            <input type="text" id="title" name="title" required>
+        <button id="submitBlogButton">Submit My Blog</button>
 
-            <label for="content">Blog Content:</label>
-            <textarea id="content" name="content" required></textarea>
+        <!-- Popup Form -->
+        <div class="popup-overlay" id="popupOverlay"></div>
+        <div class="popup" id="popupForm">
+            <button class="close" id="closePopup">X</button>
+            <h2>Submit Your Blog</h2>
 
-            <label for="image">Upload Image:</label>
-            <input type="file" id="image" name="image" accept="image/*">
+            <form id="blogForm">
+                <label for="title">Blog Title:</label>
+                <input type="text" id="title" name="title" required>
 
-            <button type="submit">Publish Blog</button>
-        </form>
+                <label for="content">Blog Content:</label>
+                <textarea id="content" name="content" required></textarea>
+
+                <label for="images">Upload Images:</label>
+                <input type="file" id="images" name="images" accept="image/*" multiple>
+
+                <button type="submit">Publish Blog</button>
+            </form>
+        </div>
 
         <div class="blog-posts" id="blogPosts">
             <h2>Published Blogs</h2>
@@ -106,41 +154,103 @@
     </div>
 
     <script>
-        const form = document.getElementById('blogForm');
+        const submitBlogButton = document.getElementById('submitBlogButton');
+        const popupForm = document.getElementById('popupForm');
+        const popupOverlay = document.getElementById('popupOverlay');
+        const closePopupButton = document.getElementById('closePopup');
+        const blogForm = document.getElementById('blogForm');
         const blogPostsDiv = document.getElementById('blogPosts');
 
-        form.addEventListener('submit', function(event) {
+        // Open the popup
+        submitBlogButton.addEventListener('click', function() {
+            popupForm.style.display = 'block';
+            popupOverlay.style.display = 'block';
+        });
+
+        // Close the popup
+        closePopupButton.addEventListener('click', function() {
+            popupForm.style.display = 'none';
+            popupOverlay.style.display = 'none';
+        });
+
+        // Save the blog post to localStorage
+        blogForm.addEventListener('submit', function(event) {
             event.preventDefault();
 
             const title = document.getElementById('title').value;
             const content = document.getElementById('content').value;
-            const imageInput = document.getElementById('image').files[0];
+            const images = document.getElementById('images').files;
 
-            const reader = new FileReader();
+            const blogPost = {
+                title: title,
+                content: content,
+                images: []
+            };
 
-            reader.onload = function(e) {
-                const imageUrl = e.target.result;
+            const readerPromises = [];
 
+            // Convert images to base64
+            for (let i = 0; i < images.length; i++) {
+                const imageFile = images[i];
+                const reader = new FileReader();
+
+                const promise = new Promise((resolve) => {
+                    reader.onload = function(event) {
+                        blogPost.images.push(event.target.result);
+                        resolve();
+                    };
+                    reader.readAsDataURL(imageFile);
+                });
+
+                readerPromises.push(promise);
+            }
+
+            Promise.all(readerPromises).then(() => {
+                // Get existing blogs from localStorage
+                let blogs = JSON.parse(localStorage.getItem('blogs')) || [];
+                blogs.push(blogPost);
+
+                // Save updated blogs to localStorage
+                localStorage.setItem('blogs', JSON.stringify(blogs));
+
+                // Add blog post to the page
+                displayBlogs();
+
+                // Reset form
+                blogForm.reset();
+
+                // Close the popup
+                popupForm.style.display = 'none';
+                popupOverlay.style.display = 'none';
+            });
+        });
+
+        // Display blogs from localStorage
+        function displayBlogs() {
+            blogPostsDiv.innerHTML = '<h2>Published Blogs</h2>';
+            const blogs = JSON.parse(localStorage.getItem('blogs')) || [];
+
+            blogs.forEach(blogPost => {
                 const blogPostDiv = document.createElement('div');
                 blogPostDiv.classList.add('blog-post');
 
+                let imagesHtml = '';
+                blogPost.images.forEach(image => {
+                    imagesHtml += `<img src="${image}" alt="Blog Image">`;
+                });
+
                 blogPostDiv.innerHTML = `
-                    <h2>${title}</h2>
-                    <p>${content}</p>
-                    ${imageUrl ? `<img src="${imageUrl}" alt="Blog Image">` : ''}
+                    <h2>${blogPost.title}</h2>
+                    <p>${blogPost.content}</p>
+                    ${imagesHtml}
                 `;
 
                 blogPostsDiv.appendChild(blogPostDiv);
+            });
+        }
 
-                form.reset();
-            };
-
-            if (imageInput) {
-                reader.readAsDataURL(imageInput);
-            } else {
-                reader.onload(); // No image
-            }
-        });
+        // Load blogs on page load
+        window.onload = displayBlogs;
     </script>
 </body>
 </html>
