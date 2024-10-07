@@ -29,30 +29,9 @@ const upload = multer({ storage: storage });
 app.get('/', async (req, res) => {
     try {
         const data = await fs.readFile('blogs.json', 'utf8');
-        let blogs;
-
-        // Try parsing the JSON data, fallback to an empty array if it fails
-        try {
-            blogs = JSON.parse(data);
-        } catch (parseError) {
-            console.error('Error parsing blogs.json, resetting file:', parseError);
-            blogs = []; // Default to an empty array if parsing fails
-            await fs.writeFile('blogs.json', JSON.stringify(blogs, null, 2)); // Reset the file
-        }
-
-        // Render the page with the loaded or empty blogs
+        const blogs = JSON.parse(data);
         res.render('index', { blogs: blogs });
-
     } catch (err) {
-        // Handle the case where the file does not exist or other read errors
-        if (err.code === 'ENOENT') {
-            console.log('blogs.json not found, creating a new one...');
-            const emptyBlogs = [];
-            await fs.writeFile('blogs.json', JSON.stringify(emptyBlogs, null, 2)); // Create the file
-            return res.render('index', { blogs: emptyBlogs });
-        }
-
-        // Other unexpected errors
         console.error('Error reading blogs.json:', err);
         res.status(500).send('Error loading blogs');
     }
