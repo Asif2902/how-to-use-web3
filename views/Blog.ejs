@@ -77,35 +77,42 @@
         });
 
         // Fetch and display blogs
-        function fetchBlogs() {
-            fetch('/blogs')
-                .then(response => response.json())
-                .then(blogs => {
-                    const blogPostsDiv = document.getElementById('blogPosts');
-                    blogPostsDiv.innerHTML = '<h2>Published Blogs</h2>';
+function fetchBlogs() {
+    fetch('/blogs')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch blogs');
+            }
+            return response.json();
+        })
+        .then(blogs => {
+            const blogPostsDiv = document.getElementById('blogPosts');
+            blogPostsDiv.innerHTML = '<h2>Published Blogs</h2>';
 
-                    blogs.forEach(blogPost => {
-                        const blogPostDiv = document.createElement('div');
-                        blogPostDiv.classList.add('blog-post');
+            blogs.forEach(blogPost => {
+                const blogPostDiv = document.createElement('div');
+                blogPostDiv.classList.add('blog-post');
 
-                        let imagesHtml = '';
-                        blogPost.images.forEach(image => {
-                            imagesHtml += `<img src="/upload/${image}" alt="Blog Image">`;
-                        });
-
-                        blogPostDiv.innerHTML = `
-                            <h2>${blogPost.title}</h2>
-                            <p>${blogPost.content}</p>
-                            ${imagesHtml}
-                        `;
-
-                        blogPostsDiv.appendChild(blogPostDiv);
-                    });
+                let imagesHtml = '';
+                blogPost.images.forEach(image => {
+                    imagesHtml += `<img src="/upload/${image}" alt="Blog Image">`;
                 });
-        }
 
-        // Load blogs on page load
-        window.onload = fetchBlogs;
+                blogPostDiv.innerHTML = `
+                    <h2>${blogPost.title}</h2>
+                    <p>${blogPost.content}</p>
+                    ${imagesHtml}
+                `;
+
+                blogPostsDiv.appendChild(blogPostDiv);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching blogs:', error);
+            document.getElementById('blogPosts').innerHTML = '<p>Failed to load blogs. Please try again later.</p>';
+        });
+}
+
     </script>
 </body>
 </html>
