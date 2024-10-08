@@ -1,47 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blogging Platform</title>
-    <link rel="stylesheet" href="/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog Posting</title>
 </head>
 <body>
-    <h1>Blogging Platform</h1>
+  <h1>Post a Blog</h1>
+  <form action="/post-blog" method="POST" enctype="multipart/form-data">
+    <input type="text" name="title" placeholder="Title" required><br>
+    <textarea name="content" placeholder="Write your blog here..." required></textarea><br>
+    <input type="file" name="images" multiple><br>
+    <button type="submit">Post Blog</button>
+  </form>
 
-    <!-- Blog Post Form -->
-    <h2>Post a Blog</h2>
-    <form action="/post" method="POST" enctype="multipart/form-data">
-        <input type="text" name="title" placeholder="Title" required><br>
-        <textarea name="content" placeholder="Write your blog..." required></textarea><br>
-        <input type="file" name="images" multiple><br>
-        <button type="submit">Post Blog</button>
-    </form>
-
-    <!-- List all blogs -->
-    <h2>All Blogs</h2>
+  <h2>All Blogs</h2>
+  <ul>
     <% blogs.forEach(blog => { %>
-        <div class="blog">
-            <h3><%= blog.title %></h3>
-            <p><%= blog.content %></p>
-            <% blog.images.forEach(image => { %>
-                <img src="<%= image %>" alt="Blog image" width="100">
-            <% }) %>
-
-            <!-- Edit Blog Form -->
-            <form action="/edit/<%= blog._id %>" method="POST">
-                <input type="text" name="title" value="<%= blog.title %>">
-                <textarea name="content"><%= blog.content %></textarea>
-                <input type="text" name="editKey" placeholder="Enter Edit/Delete Key" required>
-                <button type="submit">Edit Blog</button>
-            </form>
-
-            <!-- Delete Blog Form -->
-            <form action="/delete/<%= blog._id %>" method="POST">
-                <input type="text" name="editKey" placeholder="Enter Edit/Delete Key" required>
-                <button type="submit">Delete Blog</button>
-            </form>
-        </div>
+      <li>
+        <h3><%= blog.title %></h3>
+        <p><%= blog.content %></p>
+        <p>Images: 
+          <% blog.images.forEach(image => { %>
+            <img src="<%= image %>" width="100px" />
+          <% }); %>
+        </p>
+        <form action="/edit-blog/<%= blog.id %>" method="POST">
+          <input type="text" name="title" value="<%= blog.title %>">
+          <textarea name="content"><%= blog.content %></textarea>
+          <input type="password" name="key" placeholder="Enter key to edit">
+          <button type="submit">Edit Blog</button>
+        </form>
+        <form action="/delete-blog/<%= blog.id %>" method="POST">
+          <input type="password" name="key" placeholder="Enter key to delete">
+          <button type="submit">Delete Blog</button>
+        </form>
+      </li>
     <% }) %>
+  </ul>
 </body>
 </html>
