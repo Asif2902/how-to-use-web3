@@ -8,13 +8,16 @@
   ],
   "routes": [
     {
-      "src": "/blog",
-      "methods": ["GET"],
-      "dest": "/server.js" // Route all blog requests to your Express server
+      "src": "/",
+      "dest": "/public/index.html" // Serve the homepage directly
     },
     {
-      "src": "/(.*)",
-      "dest": "/server.js" // Route all other requests to your Express server
+      "src": "/blog",
+      "dest": "/server.js" // Route all requests to /blog to your Express server
+    },
+    {
+      "src": "/(.*)", // Catch-all for other routes if needed
+      "dest": "/server.js" // Optional: route all other requests to your Express server
     }
   ]
 }
