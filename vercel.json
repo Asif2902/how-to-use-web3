@@ -11,7 +11,7 @@
       "src": "/",
       "dest": "/public/index.html",
        "src": "/blog",
-      "dest": "/views/index.ejs",
+      "dest": "/views/index.ejs"
       
     }
   ]
