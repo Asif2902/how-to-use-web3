@@ -1,98 +1,99 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const multer = require('multer');
 const crypto = require('crypto');
+const fs = require('fs');
+
 const app = express();
-
-app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static('public'));
+app.set('view engine', 'ejs');
 
-// MongoDB connection
-mongoose.connect('mongodb://localhost/blogDB', { useNewUrlParser: true, useUnifiedTopology: true });
-
-// Multer setup for image upload
+// Multer config for handling image uploads
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'public/uploads');
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Ensure the 'uploads' directory exists
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + file.originalname);
+  },
 });
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
-// Blog schema
-const blogSchema = new mongoose.Schema({
-    title: String,
-    content: String,
-    images: [String],
-    editKey: String
-});
+// Simulating database (use actual DB for production)
+let blogs = [];
 
-const Blog = mongoose.model('Blog', blogSchema);
+// Generate 16-word key
+const generateKey = () => {
+  return crypto.randomBytes(8).toString('hex'); // 16-character hex string
+};
 
-// Routes
+// POST route for creating a blog
+app.post('/post-blog', upload.array('images', 5), (req, res) => {
+  const { title, content } = req.body;
+  const files = req.files;
+  const blogImages = files.map((file) => file.path);
 
-// Home route to list all blogs
-app.get('/', async (req, res) => {
-    const blogs = await Blog.find();
-    res.render('index', { blogs: blogs });
-});
+  const key = generateKey(); // Generate a cryptographic key
 
-// Route to handle blog posting
-app.post('/post', upload.array('images', 5), (req, res) => {
-    const { title, content } = req.body;
-    const files = req.files.map(file => file.path.replace('public', ''));
+  const newBlog = {
+    id: blogs.length + 1,
+    title,
+    content,
+    images: blogImages,
+    key,
+  };
 
-    // Generate a 16-word key
-    const key = crypto.randomBytes(16).toString('hex');
+  blogs.push(newBlog);
 
-    const newBlog = new Blog({
-        title: title,
-        content: content,
-        images: files,
-        editKey: key
-    });
+  // Save the blogs and keys to a file (or DB)
+  fs.writeFileSync('blogs.json', JSON.stringify(blogs));
 
-    newBlog.save().then(() => {
-        res.send(`<script>alert('Your edit/delete key is: ${key}'); window.location.href="/";</script>`);
-    });
+  // Send the key back to the user in a popup
+  res.render('success', { key });
 });
 
-// Route to edit blog
-app.post('/edit/:id', async (req, res) => {
-    const { id } = req.params;
-    const { title, content, editKey } = req.body;
-
-    const blog = await Blog.findById(id);
-
-    if (blog.editKey === editKey) {
-        blog.title = title;
-        blog.content = content;
-        await blog.save();
-        res.redirect('/');
-    } else {
-        res.send('<script>alert("Invalid key!"); window.location.href="/";</script>');
-    }
+// Render the blog posting page
+app.get('/', (req, res) => {
+  res.render('index', { blogs });
 });
 
-// Route to delete blog
-app.post('/delete/:id', async (req, res) => {
-    const { id } = req.params;
-    const { editKey } = req.body;
+// PUT route to edit a blog (requires key)
+app.put('/edit-blog/:id', (req, res) => {
+  const { id } = req.params;
+  const { title, content, key } = req.body;
 
-    const blog = await Blog.findById(id);
+  const blog = blogs.find((b) => b.id == id);
+  if (blog && blog.key === key) {
+    blog.title = title;
+    blog.content = content;
 
-    if (blog.editKey === editKey) {
-        await Blog.findByIdAndDelete(id);
-        res.redirect('/');
-    } else {
-        res.send('<script>alert("Invalid key!"); window.location.href="/";</script>');
-    }
+    fs.writeFileSync('blogs.json', JSON.stringify(blogs)); // Update blogs
+
+    res.send('Blog updated successfully');
+  } else {
+    res.status(403).send('Invalid key');
+  }
 });
 
-app.listen(3000, () => {
-    console.log('Server running on port 3000');
+// DELETE route to delete a blog (requires key)
+app.delete('/delete-blog/:id', (req, res) => {
+  const { id } = req.params;
+  const { key } = req.body;
+
+  const blogIndex = blogs.findIndex((b) => b.id == id);
+  if (blogIndex !== -1 && blogs[blogIndex].key === key) {
+    blogs.splice(blogIndex, 1); // Remove the blog
+
+    fs.writeFileSync('blogs.json', JSON.stringify(blogs)); // Update blogs
+
+    res.send('Blog deleted successfully');
+  } else {
+    res.status(403).send('Invalid key');
+  }
+});
+
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
