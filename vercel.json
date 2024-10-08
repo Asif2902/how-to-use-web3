@@ -2,17 +2,19 @@
   "version": 2,
   "builds": [
     {
-      "src": "public/index.html",
-      "use": "@vercel/static"
+      "src": "server.js", // Your main server file
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/",
-      "dest": "/public/index.html",
-       "src": "/blog",
-      "dest": "/views/index.ejs"
-      
+      "src": "/blog",
+      "methods": ["GET"],
+      "dest": "/server.js" // Route all blog requests to your Express server
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/server.js" // Route all other requests to your Express server
     }
   ]
 }
