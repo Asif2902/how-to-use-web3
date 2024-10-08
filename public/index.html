@@ -12,13 +12,62 @@ auto; padding: 20px; } h1, h2, h3 { color: #333; } h2 { margin-top: 40px;
 margin-bottom: 20px; } .section { background-color: #fff; padding: 20px; margin:
 20px 0; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); } a {
 color: #4CAF50; text-decoration: none; } a:hover { text-decoration: underline; }
-ul { list-style-type: disc; margin-left: 20px; } </style>
-</head>
-<body>
+ul { list-style-type: disc; margin-left: 20px; }
 
+
+        .ticker-container {
+            width: 100%;
+            background-color: black;
+            padding: 10px 0;
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            z-index: 999;
+            color: white;
+        }
+
+        .ticker {
+            display: flex;
+            white-space: nowrap;
+        }
+
+        .ticker-item {
+            margin-right: 50px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ticker-item span {
+            margin-left: 5px;
+        }
+
+        /* Icons styling */
+        .up {
+            color: green;
+        }
+
+        .down {
+            color: red;
+        }
+
+        .equal {
+            color: black;
+        }
+
+</style>
+  <link rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+<div class="ticker-container">
+    <div id="crypto-ticker" class="ticker"></div>
+</div>
 <header>
+    
     <h1>Welcome to the Crypto Space</h1>
     <p>Your Beginner's Guide to Creating Wallets and Using DApps</p>
+    
 </header>
 
 <div class="container">
@@ -280,5 +329,72 @@ ul { list-style-type: disc; margin-left: 20px; } </style>
 </div>
 
 
+
+<script>
+    async function fetchPrices() {
+        try {
+            const response = await
+            fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1');
+            const data = await response.json();
+            const tickerContainer = document.getElementById('crypto-ticker');
+
+            tickerContainer.innerHTML = ''; // Clear previous content
+
+            data.forEach(coin => {
+                const tickerItem = document.createElement('div');
+                tickerItem.classList.add('ticker-item');
+
+                // Determine icon based on price change percentage
+                let iconClass = '';
+                let icon = '';
+                const percentageChange = coin.price_change_percentage_24h;
+
+                if (percentageChange > 0) {
+                    iconClass = 'up';
+                    icon = '<i class="fas fa-arrow-up"></i>';
+                } else if (percentageChange < 0) {
+                    iconClass = 'down';
+                    icon = '<i class="fas fa-arrow-down"></i>';
+                } else {
+                    iconClass = 'equal';
+                    icon = '<i class="fas fa-equals"></i>';
+                }
+
+                // Display the symbol, price, percentage change, and appropriate icon
+                tickerItem.innerHTML = `
+                    ${coin.symbol.toUpperCase()}: $${coin.current_price.toFixed(2)}
+                    <span class="${iconClass}">${icon} ${percentageChange.toFixed(2)}%</span>
+                `;
+                tickerContainer.appendChild(tickerItem);
+            });
+
+            startTickerAnimation(tickerContainer, 3); // Increase the speed by passing a higher number
+        } catch (error) {
+            console.error('Error fetching crypto prices:', error);
+        }
+    }
+
+    function startTickerAnimation(tickerContainer, speed = 1) {
+        const containerWidth = document.querySelector('.ticker-container').offsetWidth;
+        const totalWidth = tickerContainer.scrollWidth;
+        let position = 0;
+
+        function scrollTicker() {
+            position -= speed; // Increase the speed by multiplying the decrement
+            if (position <= -totalWidth) {
+                position = containerWidth;
+            }
+            tickerContainer.style.transform = `translateX(${position}px)`;
+            requestAnimationFrame(scrollTicker);
+        }
+
+        scrollTicker();
+    }
+
+    fetchPrices();
+
+    // Refresh the prices every 50 minutes
+    setInterval(fetchPrices, 3000000);
+</script>
 </body>
 </html>
