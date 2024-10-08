@@ -35,10 +35,16 @@ const Blog = mongoose.model('Blog', blogSchema);
 
 // Routes
 
-// Home route to list all blogs
+// Home route to display the homepage
 app.get('/', async (req, res) => {
     const blogs = await Blog.find();
     res.render('index', { blogs: blogs });
+});
+
+// New blog route to list all blogs
+app.get('/blog', async (req, res) => {
+    const blogs = await Blog.find();
+    res.render('blog', { blogs: blogs }); // Render the 'blog' view
 });
 
 // Route to handle blog posting
@@ -72,7 +78,7 @@ app.post('/edit/:id', async (req, res) => {
         blog.title = title;
         blog.content = content;
         await blog.save();
-        res.redirect('/');
+        res.redirect('/blog'); // Redirect to the blog page after editing
     } else {
         res.send('<script>alert("Invalid key!"); window.location.href="/";</script>');
     }
@@ -87,7 +93,7 @@ app.post('/delete/:id', async (req, res) => {
 
     if (blog.editKey === editKey) {
         await Blog.findByIdAndDelete(id);
-        res.redirect('/');
+        res.redirect('/blog'); // Redirect to the blog page after deletion
     } else {
         res.send('<script>alert("Invalid key!"); window.location.href="/";</script>');
     }
