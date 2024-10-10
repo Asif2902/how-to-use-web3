@@ -17,7 +17,7 @@
     },
     {
       "src": "/blog/(.*)",
-      "dest": "/index.js"
+      "dest": "/views/index.html"
     }
   ]
 }
