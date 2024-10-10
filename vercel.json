@@ -6,7 +6,8 @@
       "dest": "/index.html"
     },
     {
-      "src": "/blog",
+      "src": "/blog/(.*)
+      ",
       "dest": "/views/index.html"
     }
   ]
