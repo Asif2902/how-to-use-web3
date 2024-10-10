@@ -7,7 +7,7 @@
     },
     {
       "src": "/blog",
-      "dest": "/views/index.html"
+      "dest": "/views/blog.html"
     }
   ]
 }
