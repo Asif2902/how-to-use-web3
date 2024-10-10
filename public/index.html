@@ -363,7 +363,7 @@ ul { list-style-type: disc; margin-left: 20px; }
             const data = await response.json();
             const tickerContainer = document.getElementById('crypto-ticker');
 
-            tickerContainer.innerHTML = ''; // Clear previous content
+          
 
             data.forEach(coin => {
                 const tickerItem = document.createElement('div');
