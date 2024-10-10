@@ -3,11 +3,11 @@
   "routes": [
     {
       "src": "/",
-      "dest": "public/index.html"
+      "dest": "/index.html"
     },
     {
       "src": "/blog",
-      "dest": "/pubic/blog.html"
+      "dest": "/blog.html"
     }
   ]
 }
