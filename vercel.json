@@ -8,6 +8,10 @@
     {
       "src": "/blog",
       "dest": "/blog.html"
+    },
+        {
+      "src": "/check/taiko",
+      "dest": "/check.html"
     }
   ]
 }
