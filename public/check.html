@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trailblazer Rank Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 {
+            color: #4CAF50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 5px 0;
+            padding: 8px;
+            background-color: #e0f7fa;
+            border-radius: 5px;
+        }
+        .bold {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Trailblazer Rank Checker</h1>
+        <form id="rankForm">
+            <label for="address">Enter your Ethereum address:</label>
+            <input type="text" id="address" name="address" placeholder="0x..." required>
+            <button type="submit">Check Rank</button>
+        </form>
+
+        <div class="result" id="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        document.getElementById('rankForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const address = document.getElementById('address').value.trim();
+            if (!address) {
+                alert('Please enter a valid Ethereum address.');
+                return;
+            }
+
+            // Use a public CORS proxy to bypass CORS issues
+            const proxyUrl = 'https://corsproxy.io/?';  // Public CORS proxy
+            const apiUrl = `https://trailblazer.mainnet.taiko.xyz/user/rank?address=${address}`;
+
+            fetch(proxyUrl + encodeURIComponent(apiUrl))
+                .then(response => response.json())
+                .then(data => displayRankInfo(data))
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    document.getElementById('result').innerHTML = '<span class="error">Error fetching data. Please try again later.</span>';
+                    document.getElementById('result').style.display = 'block';
+                });
+        });
+
+        function displayRankInfo(data) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = ''; // Clear any previous results
+
+            if (data.blacklisted) {
+                resultDiv.innerHTML = '<span class="error">You are not eligible due to blacklisting.</span>';
+            } else if (data.totalScore === 0) {
+                resultDiv.innerHTML = '<span class="error">Your total score is zero. You may not be eligible.</span>';
+            } else {
+                let breakdownHtml = `
+                    <h2>Rank Information</h2>
+                    <p><span class="bold">Rank:</span> ${data.rank}</p>
+                    <p><span class="bold">Total Points:</span> ${data.totalScore.toFixed(2)}</p>
+                    <p><span class="bold">Multiplier:</span> ${data.multiplier}</p>
+                    <h3>Point Breakdown:</h3>
+                    <ul>
+                `;
+                data.breakdown.forEach(item => {
+                    breakdownHtml += `<li><span class="bold">${item.event}:</span> ${item.total_points.toFixed(2)} points</li>`;
+                });
+                breakdownHtml += '</ul>';
+
+                // Add the eligibility message for non-blacklisted users
+                breakdownHtml += '<p><span class="bold">You might be eligible, you are not in the block list.</span></p>';
+
+                resultDiv.innerHTML = breakdownHtml;
+            }
+        }
+    </script>
+</body>
+</html>
