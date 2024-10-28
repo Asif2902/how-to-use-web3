@@ -43,6 +43,30 @@ margin-bottom: 20px; } .section { background-color: #fff; padding: 20px; margin:
 color: #4CAF50; text-decoration: none; } a:hover { text-decoration: underline; }
 ul { list-style-type: disc; margin-left: 20px; }
 
+.button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;           /* Remove underline */
+    display: inline-block;           /* Ensures padding and size work */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.button:hover {
+    background-color: #45A049;
+    box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.button:active {
+    transform: scale(0.98);
+    background-color: #3e8e41;
+}
 
         .ticker-container {
             width: 100%;
@@ -95,7 +119,9 @@ ul { list-style-type: disc; margin-left: 20px; }
 </div>
 <header>
     
-    <h1>Welcome to the Crypto Space</h1>
+    <h1>
+      
+      Welcome to the Crypto Space</h1>
     <p>Your Beginner's Guide to Creating Wallets and Using DApps</p>
     
 </header>
@@ -103,13 +129,14 @@ ul { list-style-type: disc; margin-left: 20px; }
 <div class="container">
     
     <section class="section">
+      <a href="https://0xasif.monster" class="button">Home</a>
+            <a href="https://guide.0xasif.monster/btc" class="button">About BTC</a>
+
         <h2>What is Cryptocurrency?</h2>
         <p>Cryptocurrency is a digital or virtual currency secured by
         cryptography, making it nearly impossible to counterfeit. It's
         decentralized and uses blockchain technology. Bitcoin and Ethereum are
         the most popular examples of cryptocurrencies. 
-        <a
-        href="https://guide.0xasif.monster/btc" target="_blank">Know more about BTC</a>
         </p>
         <p>To get started, you need a wallet to store and manage your cryptocurrency. This guide will help you create a wallet, load it with funds, and start using decentralized applications (DApps).</p>
     </section>
