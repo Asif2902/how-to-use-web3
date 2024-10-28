@@ -9,6 +9,7 @@
       "src": "/blog",
       "dest": "/blog.html"
     },
+    {
           "src": "/btc",
       "dest": "/btc.html"
     },
