@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Understanding Bitcoin: The Future of Money</title>
-  
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
   body {
     font-family: Arial, sans-serif;
@@ -85,7 +85,12 @@ footer {
     transform: scale(0.98);
     background-color: #3e8e41;
 }
-
+ .chart-container {
+      width: 90%;
+      max-width: 600px;
+      height: 400px;
+      margin: auto;
+    }
 </style>
 
 </head>
@@ -182,8 +187,13 @@ footer {
             been developed and maintained by a decentralized group of contributors.
         </p>
     </section>
-
-
+    
+    <section>
+    <h3>Distribution of 21 Million Bitcoin</h3>
+    
+        <canvas id="bitcoinChart"></canvas>
+    </section>
+    
     <section>
         <h3>Conclusion</h3>
         <p>
@@ -201,5 +211,80 @@ footer {
    target="_blank"> Crypto Beginner's Guide </a>. All rights reserved.</strong></code>
 </footer>
 </div>
+  <script>
+    const ctx = document.getElementById('bitcoinChart').getContext('2d');
+    
+    // Data for Bitcoin distribution
+    const labels = [
+      'Individual',
+      'Lost BTC',
+      'Yet To Be Mined',
+      'Satoshi Wallet',
+      'Miners',
+      'BTC ETF',
+      'Corporations',
+      'Government'
+    ];
+    const percentages = [57, 17.6, 6.6, 5.2, 3.4, 3.9, 3.6, 2.7];
+    const totalBitcoin = 21000000; // 21 million BTC
+
+    // Calculate Bitcoin amount for each label
+    const labelsWithAmounts = labels.map((label, index) => {
+      const bitcoinAmount = ((percentages[index] / 100) * totalBitcoin).toLocaleString();
+      return `${label} (${percentages[index]}%) - ${bitcoinAmount} BTC`;
+    });
+
+    const data = {
+      labels: labelsWithAmounts,
+      datasets: [{
+        label: 'Bitcoin Distribution',
+        data: percentages,
+        backgroundColor: [
+          '#FFB703', '#FF6F59', '#8D99AE', '#3A86FF', 
+          '#FB5607', '#8338EC', '#06D6A0', '#F94144'
+        ],
+        borderColor: '#fff',
+        borderWidth: 2
+      }]
+    };
+
+    const config = {
+      type: 'pie',
+      data: data,
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: '#333',
+              font: {
+                size: 14
+              },
+              boxWidth: 15
+            }
+          },
+          tooltip: {
+            callbacks: {
+              title: function() {
+                return ''; // Remove the top title in the tooltip
+              },
+              label: function(context) {
+                const label = context.label.split(" - ")[0]; // Get label text without BTC amount
+                const bitcoinAmount = ((context.raw / 100) * totalBitcoin).toLocaleString();
+                return `${label} - ${bitcoinAmount} BTC (${context.raw}%)`;
+              }
+            },
+            bodyFont: {
+              size: 14
+            }
+          }
+        }
+      }
+    };
+
+    const bitcoinChart = new Chart(ctx, config);
+  </script>
 </body>
 </html>
